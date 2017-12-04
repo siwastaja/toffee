@@ -28,6 +28,8 @@ main.bin: $(OBJ)
 flash_full: main.bin
 	sudo stm32sprog -b 115200 -vw main_full.bin
 
+flash: flash_full
+
 stack:
 	cat *.su
 
@@ -46,4 +48,4 @@ e:
 	gedit --new-window stm32init.c main.c &
 
 s:
-	sudo screen /dev/ttyUSB0 115200
+	sudo screen /dev/ttyUSB0 230400

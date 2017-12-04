@@ -12,7 +12,8 @@ extern void main();
 
 extern void epc_i2c_inthandler();
 extern void epc_dcmi_dma_inthandler();
-
+extern void epc_shutdown_inthandler();
+extern void epc_rx_dma_inthandler();
 extern unsigned int _STACKTOP;
 
 // Vector table on page 311 on the Reference Manual RM0410
@@ -45,19 +46,19 @@ unsigned int * the_nvic_vector[126] __attribute__ ((section(".nvic_vector"))) =
 /* 0x0060                    */ (unsigned int *) invalid_handler,
 /* 0x0064                    */ (unsigned int *) invalid_handler,
 /* 0x0068                    */ (unsigned int *) invalid_handler,
-/* 0x006C                    */ (unsigned int *) invalid_handler,
-/* 0x0070                    */ (unsigned int *) invalid_handler,
-/* 0x0074                    */ (unsigned int *) invalid_handler,
-/* 0x0078                    */ (unsigned int *) invalid_handler,
-/* 0x007C                    */ (unsigned int *) invalid_handler,
-/* 0x0080                    */ (unsigned int *) invalid_handler,
-/* 0x0084                    */ (unsigned int *) invalid_handler,
+/* 0x006C DMA1_Stream0       */ (unsigned int *) invalid_handler,
+/* 0x0070 DMA1_Stream1       */ (unsigned int *) epc_rx_dma_inthandler,
+/* 0x0074 DMA1_Stream2       */ (unsigned int *) invalid_handler,
+/* 0x0078 DMA1_Stream3       */ (unsigned int *) invalid_handler,
+/* 0x007C DMA1_Stream4       */ (unsigned int *) invalid_handler,
+/* 0x0080 DMA1_Stream5       */ (unsigned int *) invalid_handler,
+/* 0x0084 DMA1_Stream6       */ (unsigned int *) invalid_handler,
 /* 0x0088 ADC                */ (unsigned int *) invalid_handler,
 /* 0x008C                    */ (unsigned int *) invalid_handler,
 /* 0x0090                    */ (unsigned int *) invalid_handler,
 /* 0x0094                    */ (unsigned int *) invalid_handler,
 /* 0x0098                    */ (unsigned int *) invalid_handler,
-/* 0x009C                    */ (unsigned int *) invalid_handler,
+/* 0x009C EXTI5..9           */ (unsigned int *) epc_shutdown_inthandler,
 /* 0x00A0                    */ (unsigned int *) invalid_handler,
 /* 0x00A4                    */ (unsigned int *) invalid_handler,
 /* 0x00A8                    */ (unsigned int *) invalid_handler,
