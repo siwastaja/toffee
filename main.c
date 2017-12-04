@@ -410,14 +410,14 @@ void epc_test()
 	uint8_t i2c_buf[16];
 	char printbuf[64];
 
-	delay_ms(1000);
+	delay_ms(300);
 	EPC10V_ON();
 	EPC5V_ON();
 	delay_ms(100);
 	EPCNEG10V_ON();
 	delay_ms(100);
 	EPC_RSTN_HIGH();
-	delay_ms(1000);
+	delay_ms(300);
 
 
 	uart_print_string_blocking("epc_i2c_init...");
@@ -531,123 +531,59 @@ void epc_test()
 	epc_dcmi_init();
 	uart_print_string_blocking("ok\r\n");
 
+	{
+		uint8_t b[2] = {0xa4, 1};
+		uart_print_string_blocking("write shutter (for dummy frame)...");
+		dcmi_start_dma();
+		epc_i2c_write(EPC_ADDR, b, 2);
+		while(epc_i2c_is_busy());
+		delay_ms(100);
+		uart_print_string_blocking("ok\r\n");
+	}
+
 
 	while(1)
 	{
 		{
-			DCMI->ICR = 0b11111;
-
 			uint8_t b[2] = {0xa4, 1};
 			uart_print_string_blocking("write shutter (acq single frame)...");
 
-			uart_print_string_blocking("DCMI->RIS=");
-			o_utoa32(DCMI->RISR, printbuf); uart_print_string_blocking(printbuf);
-			uart_print_string_blocking(" ");
-
-			if(epc_capture_finished)
-				uart_print_string_blocking("x");
-			else
-				uart_print_string_blocking("?");
-			if(DCMI->CR&1UL)
-				uart_print_string_blocking("D");
-			else
-				uart_print_string_blocking("d");
 			dcmi_start_dma();
-
-			uart_print_string_blocking("DCMI->RIS=");
-			o_utoa32(DCMI->RISR, printbuf); uart_print_string_blocking(printbuf);
-			uart_print_string_blocking(" ");
-
-			if(epc_capture_finished)
-				uart_print_string_blocking("x");
-			else
-				uart_print_string_blocking("?");
-			if(DCMI->CR&1UL)
-				uart_print_string_blocking("D");
-			else
-				uart_print_string_blocking("d");
-			o_utoa32(DMA2_Stream7->NDTR, printbuf); uart_print_string_blocking(printbuf);
-			uart_print_string_blocking(" ");
 			epc_i2c_write(EPC_ADDR, b, 2);
 			while(epc_i2c_is_busy());
-			//uart_print_string_blocking("ok\r\n");
+			uart_print_string_blocking("ok\r\n");
 		}
 
 
-		for(int i = 0; i<20; i++)
-		{
-
-			uart_print_string_blocking(" ");
-			uart_print_string_blocking("R=");
-			o_utoa32(DCMI->RISR, printbuf); uart_print_string_blocking(printbuf);
-
-			if(epc_capture_finished)
-				uart_print_string_blocking("x");
-			else
-				uart_print_string_blocking("?");
-			if(DCMI->CR&1UL)
-				uart_print_string_blocking("D");
-			else
-				uart_print_string_blocking("d");
-			o_utoa32(DMA2_Stream7->NDTR, printbuf); uart_print_string_blocking(printbuf);
-		}
-/*
-			uint32_t tmp[200];
-			tmp[0] = DMA2_Stream7->NDTR;
-			for(int i=1; i<200; i++)
-			{
-				tmp[i] = DMA2_Stream7->NDTR;
-				delay_us(250);
-			}
-
-			for(int i=0; i<200; i++)
-			{
-				o_utoa32(tmp[i], printbuf); uart_print_string_blocking(printbuf);
-				uart_print_string_blocking(" ");
-			}
-*/
-
-		delay_ms(100);
-		uart_print_string_blocking("DCMI->RIS=");
-		o_utoa32(DCMI->RISR, printbuf); uart_print_string_blocking(printbuf);
-		uart_print_string_blocking(" ");
-
-		if(epc_capture_finished)
-			uart_print_string_blocking("x");
-		else
-			uart_print_string_blocking("?");
-		if(DCMI->CR&1UL)
-			uart_print_string_blocking("D");
-		else
-			uart_print_string_blocking("d");
-		o_utoa32(DMA2_Stream7->NDTR, printbuf); uart_print_string_blocking(printbuf);
-		uart_print_string_blocking(" ");
-
-
-
-
-
-
-//		uart_print_string_blocking("wait frame...");
-//		while(!epc_capture_finished) ;
+		uart_print_string_blocking("wait frame...");
+		while(!epc_capture_finished) ;
  		epc_capture_finished = 0;
-//		uart_print_string_blocking("ok\r\n");
-		uart_print_string_blocking("\r\n");
+		uart_print_string_blocking("ok\r\n");
 
 		for(int yy=10; yy < 60; yy+=20)
 		{
 			for(int xx=20; xx < 160; xx+=40)
 			{
 				uint16_t val = epc_frame_proc->img_mono[yy*EPC_XS+xx];
-				int16_t lum = ((val&0xfff0)>>4);
+				for(int b=15; b>=0; b--)
+				{
+					if(val&(1<<b))
+						uart_print_string_blocking("1");
+					else
+						uart_print_string_blocking("0");
+
+				}
+
+				uart_print_string_blocking(" ");
+				int16_t lum = ((val&0b0011111111111100)>>2)-2048;
 				o_itoa16_fixed(lum, printbuf); uart_print_string_blocking(printbuf);
-				uart_print_string_blocking("  ");
+				uart_print_string_blocking("    ");
 			}
 			uart_print_string_blocking("\r\n");
 		}
 		uart_print_string_blocking("\r\n");
 
-		delay_ms(5000);
+		delay_ms(1000);
 
 	}
 
