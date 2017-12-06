@@ -48,4 +48,4 @@ e:
 	gedit --new-window stm32init.c main.c &
 
 s:
-	sudo screen /dev/ttyUSB0 230400
+	sudo screen /dev/ttyUSB0 115200

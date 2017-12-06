@@ -47,8 +47,8 @@ unsigned int * the_nvic_vector[126] __attribute__ ((section(".nvic_vector"))) =
 /* 0x0064                    */ (unsigned int *) invalid_handler,
 /* 0x0068                    */ (unsigned int *) invalid_handler,
 /* 0x006C DMA1_Stream0       */ (unsigned int *) invalid_handler,
-/* 0x0070 DMA1_Stream1       */ (unsigned int *) epc_rx_dma_inthandler,
-/* 0x0074 DMA1_Stream2       */ (unsigned int *) invalid_handler,
+/* 0x0070 DMA1_Stream1       */ (unsigned int *) invalid_handler,
+/* 0x0074 DMA1_Stream2       */ (unsigned int *) epc_rx_dma_inthandler,
 /* 0x0078 DMA1_Stream3       */ (unsigned int *) invalid_handler,
 /* 0x007C DMA1_Stream4       */ (unsigned int *) invalid_handler,
 /* 0x0080 DMA1_Stream5       */ (unsigned int *) invalid_handler,
@@ -154,9 +154,10 @@ extern unsigned int _DATA_BEGIN;
 extern unsigned int _DATA_END;
 extern unsigned int _DATAI_BEGIN;
 
-extern unsigned int _BOOST_BEGIN;
-extern unsigned int _BOOST_END;
-extern unsigned int _BOOSTI_BEGIN;
+extern unsigned int _DATA2_BEGIN;
+extern unsigned int _DATA2_END;
+extern unsigned int _DATA2I_BEGIN;
+
 
 extern void hwtest_main();
 
@@ -180,6 +181,18 @@ void stm32init(void)
 		data_begin++;
 		datai_begin++;
 	}
+
+	uint32_t* data2_begin  = (uint32_t*)&_DATA2_BEGIN;
+	uint32_t* data2_end    = (uint32_t*)&_DATA2_END;
+	uint32_t* data2i_begin = (uint32_t*)&_DATA2I_BEGIN;
+
+	while(data2_begin < data2_end)
+	{
+		*data2_begin = *data2i_begin;
+		data2_begin++;
+		data2i_begin++;
+	}
+
 
 	main();
 }

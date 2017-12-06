@@ -2,7 +2,7 @@ MEMORY
 {
   ram1 (rwx)        : ORIGIN = 0x20020000, LENGTH = 368K
   ram2 (rwx)        : ORIGIN = 0x2007C000, LENGTH = 16K
-  stack(rwx)       : ORIGIN = 0x2007BFF8, LENGTH = 0K
+  stack(rwx)        : ORIGIN = 0x2007BFF8, LENGTH = 0K
 
   rom (rx)         : ORIGIN = 0x00200000, LENGTH = 1024K
 }
@@ -22,8 +22,6 @@ SECTIONS
         *(.text.*)
         *(.rodata)    /* Read only data */
         *(.rodata.*)
-        *(.sin_lut)
-        *(.sin_lut.*)
     } >rom
 
     . = ALIGN(8);
@@ -33,12 +31,25 @@ SECTIONS
     .data : 
     {
         _DATA_BEGIN = .;
-        *(.data)      /* Data memory */
+        *(.data)
         *(.data.*)        
         _DATA_END = .;
     } >ram1 AT>rom
 
     . = ALIGN(8);
+
+    _DATA2I_BEGIN = LOADADDR(.data2);
+
+    .data2 : 
+    {
+        _DATA2_BEGIN = .;
+        *(.data2)
+        *(.data2.*)        
+        _DATA2_END = .;
+    } >ram2 AT>rom
+
+    . = ALIGN(8);
+
 
     .bss :
     {
