@@ -14,6 +14,7 @@ extern void epc_i2c_inthandler();
 extern void epc_dcmi_dma_inthandler();
 extern void epc_shutdown_inthandler();
 extern void epc_rx_dma_inthandler();
+extern void timebase_handler();
 extern unsigned int _STACKTOP;
 
 // Vector table on page 311 on the Reference Manual RM0410
@@ -60,7 +61,7 @@ unsigned int * the_nvic_vector[126] __attribute__ ((section(".nvic_vector"))) =
 /* 0x0098                    */ (unsigned int *) invalid_handler,
 /* 0x009C EXTI5..9           */ (unsigned int *) epc_shutdown_inthandler,
 /* 0x00A0                    */ (unsigned int *) invalid_handler,
-/* 0x00A4                    */ (unsigned int *) invalid_handler,
+/* 0x00A4 TIM1_UP_TIM10      */ (unsigned int *) invalid_handler,
 /* 0x00A8                    */ (unsigned int *) invalid_handler,
 /* 0x00AC                    */ (unsigned int *) invalid_handler,
 /* 0x00B0                    */ (unsigned int *) invalid_handler,
@@ -85,7 +86,7 @@ unsigned int * the_nvic_vector[126] __attribute__ ((section(".nvic_vector"))) =
 /* 0x00FC                    */ (unsigned int *) invalid_handler,
 /* 0x0100                    */ (unsigned int *) invalid_handler,
 /* 0x0104                    */ (unsigned int *) invalid_handler,
-/* 0x0108                    */ (unsigned int *) invalid_handler,
+/* 0x0108 TIM5               */ (unsigned int *) timebase_handler,
 /* 0x010C                    */ (unsigned int *) invalid_handler,
 /* 0x0110                    */ (unsigned int *) invalid_handler,
 /* 0x0114                    */ (unsigned int *) invalid_handler,
@@ -154,9 +155,9 @@ extern unsigned int _DATA_BEGIN;
 extern unsigned int _DATA_END;
 extern unsigned int _DATAI_BEGIN;
 
-extern unsigned int _DATA2_BEGIN;
-extern unsigned int _DATA2_END;
-extern unsigned int _DATA2I_BEGIN;
+extern unsigned int _DATA_DTCM_BEGIN;
+extern unsigned int _DATA_DTCM_END;
+extern unsigned int _DATA_DTCM_I_BEGIN;
 
 
 extern void hwtest_main();
@@ -182,15 +183,15 @@ void stm32init(void)
 		datai_begin++;
 	}
 
-	uint32_t* data2_begin  = (uint32_t*)&_DATA2_BEGIN;
-	uint32_t* data2_end    = (uint32_t*)&_DATA2_END;
-	uint32_t* data2i_begin = (uint32_t*)&_DATA2I_BEGIN;
+	uint32_t* data_dtcm_begin  = (uint32_t*)&_DATA_DTCM_BEGIN;
+	uint32_t* data_dtcm_end    = (uint32_t*)&_DATA_DTCM_END;
+	uint32_t* data_dtcm_i_begin = (uint32_t*)&_DATA_DTCM_I_BEGIN;
 
-	while(data2_begin < data2_end)
+	while(data_dtcm_begin < data_dtcm_end)
 	{
-		*data2_begin = *data2i_begin;
-		data2_begin++;
-		data2i_begin++;
+		*data_dtcm_begin = *data_dtcm_i_begin;
+		data_dtcm_begin++;
+		data_dtcm_i_begin++;
 	}
 
 

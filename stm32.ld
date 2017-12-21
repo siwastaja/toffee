@@ -1,7 +1,8 @@
 MEMORY
 {
-  ram1 (rwx)        : ORIGIN = 0x20020000, LENGTH = 368K
-  ram2 (rwx)        : ORIGIN = 0x2007C000, LENGTH = 16K
+  ram_main (rwx)        : ORIGIN = 0x20020000, LENGTH = 368K
+  ram_backup (rwx)      : ORIGIN = 0x2007C000, LENGTH = 16K
+  ram_dtcm (rwx)        : ORIGIN = 0x20000000, LENGTH = 128K
   stack(rwx)        : ORIGIN = 0x2007BFF8, LENGTH = 0K
 
   rom (rx)         : ORIGIN = 0x00200000, LENGTH = 1024K
@@ -34,19 +35,19 @@ SECTIONS
         *(.data)
         *(.data.*)        
         _DATA_END = .;
-    } >ram1 AT>rom
+    } >ram_main AT>rom
 
     . = ALIGN(8);
 
-    _DATA2I_BEGIN = LOADADDR(.data2);
+    _DATA_DTCM_I_BEGIN = LOADADDR(.data_dtcm);
 
-    .data2 : 
+    .data_dtcm : 
     {
-        _DATA2_BEGIN = .;
-        *(.data2)
-        *(.data2.*)        
-        _DATA2_END = .;
-    } >ram2 AT>rom
+        _DATA_DTCM_BEGIN = .;
+        *(.data_dtcm)
+        *(.data_dtcm.*)        
+        _DATA_DTCM_END = .;
+    } >ram_dtcm AT>rom
 
     . = ALIGN(8);
 
@@ -57,14 +58,14 @@ SECTIONS
         *(.bss)
         *(COMMON)        
         _BSS_END = .;
-    } >ram1 
+    } >ram_main 
 
     . = ALIGN(8);
 
     .heap :
     {
         _HEAP = .;
-    } >ram1
+    } >ram_main
 
     .stack :
     {
