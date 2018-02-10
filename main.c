@@ -970,7 +970,7 @@ Processing:                                 (dist 37.5m composite)       (dist 7
 		// First img is ambient light, clkdiv for 37.5m is used here.
 		{
 			epc_wrbuf[0] = 0x85;
-			epc_wrbuf[1] = 1; //5-1; // 37.5m (37.470m) unambiguity range
+			epc_wrbuf[1] = 1-1; //5-1; // 37.5m (37.470m) unambiguity range
 			epc_i2c_write(EPC_ADDR, epc_wrbuf, 2);
 			while(epc_i2c_is_busy());
 		}
@@ -1332,27 +1332,6 @@ void epc_test()
 
 
 		dcmi_start_dma(&img_mono, (EPC_XS*EPC_YS*2)/4+1);
-
-		trig();
-
-		GLED_ON();
-		while(!epc_capture_finished) ;
-		epc_capture_finished = 0;
-		GLED_OFF();
-
-
-		{
-			int intlen = ((int)config.dist_int_len<<2)-1;
-			epc_wrbuf[0] = 0xA1;
-			epc_wrbuf[1] = 24/config.clk_div;
-			epc_wrbuf[2] = (intlen&0xff00)>>8;
-			epc_wrbuf[3] = intlen&0xff;
-			epc_i2c_write(EPC_ADDR, epc_wrbuf, 4);
-			while(epc_i2c_is_busy());
-		}
-
-
-		dcmi_start_dma(&img_compmono, (EPC_XS*EPC_YS*2)/4+1);
 
 		trig();
 
@@ -1750,7 +1729,10 @@ void main()
 	RLED_ON();
 	GLED_ON();
 
+	#ifdef COMPILE_TEST
+	epc_test();
+	#else
 	epc_automatic();
-	//epc_test();
+	#endif
 	//uart_dbg();
 }
